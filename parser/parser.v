@@ -7,11 +7,11 @@ struct ParsedArguments {
 }
 
 // Get command from argument list
-fn get_command(args []string) ?(string, []string) {
+pub fn get_command(args []string) (string, []string) {
 	command := args[0]
 	args_without_command := args[1..]
 	if is_flag(command) {
-		return error(command)
+		return '', args
 	} else {
 		return command, args_without_command
 	}
@@ -23,8 +23,13 @@ fn is_flag(arg string) bool {
 	return arg[0..1] == '-'
 }
 
+// Check if given [arg] is 'help' flag
+fn is_help_flag(arg string) bool {
+	return arg == '-h' || arg == '--help'
+}
+
 // Get all options from argument list
-fn get_options(args []string) ([]string, []string) {
+pub fn get_options(args []string) ([]string, []string) {
 	mut options := []string{cap: args.len}
 	mut arguments := []string{cap: args.len}
 
@@ -40,7 +45,7 @@ fn get_options(args []string) ([]string, []string) {
 }
 
 // Get all flags from argument list
-fn get_flags(args_list []string) ?[]string {
+pub fn get_flags(args_list []string) []string {
 	mut flags := []string{cap: args_list.len}
 
 	for arg in args_list {
@@ -53,17 +58,10 @@ fn get_flags(args_list []string) ?[]string {
 }
 
 // Parse arguments from command line to command, options and flags
-fn parse_arguments(args_list []string) ParsedArguments {
-	command, options_and_args := get_command(args_list) or {
-		eprintln('Invalid command given: $err')
-		eprintln('Use "--help" to see available commands')
-		exit(1)
-	}
+pub fn parse_arguments(args_list []string) ParsedArguments {
+	command, options_and_args := get_command(args_list)
 	options, args := get_options(options_and_args)
-	flags := get_flags(args) or {
-		eprintln('Invalid argument passed: $err')
-		exit(1)
-	}
+	flags := get_flags(args)
 
 	return ParsedArguments{
 		command: command
