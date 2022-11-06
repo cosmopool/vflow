@@ -162,3 +162,8 @@ pub fn set_oneflow_config(config string, value string) bool {
 	result := os.execute('git config oneflow.{config} "{value}"')
 	return result.exit_code == 0
 }
+
+pub fn has_oneflow_main_configured() bool {
+	main_branch := get_oneflow_config('branch.main')
+	return main_branch != '' && local_branch_exists(main_branch)
+}
