@@ -12,9 +12,18 @@ pub fn is_not_headless_repo() bool {
 	return output != 'HEAD'
 }
 
-pub fn is_clean_working_tree() bool {
-	result := os.execute('git diff --no-ext-diff --ignore-submodules --quiet --exit-code')
-	return result.exit_code == 0
+pub fn is_clean_working_tree() int {
+	unstaged_check := os.execute('git diff --no-ext-diff --ignore-submodules --quiet --exit-code').exit_code
+	if unstaged_check != 0 {
+		return 1
+	}
+
+	uncommited_check := os.execute('git diff-index --cached --quiet --ignore-submodules HEAD --').exit_code
+	if uncommited_check != 0 {
+		return 2
+	}
+
+	return 0
 }
 
 pub fn get_local_branches() []string {
@@ -134,9 +143,22 @@ pub fn git_do(command string) os.Result {
 }
 
 pub fn require_clean_working_tree() {
-	if !is_clean_working_tree() {
-		println('Working tree contains unstaged changes. Or...')
-		println('Index contains uncommited changes.')
-		panic('Aborting.')
+	code := is_clean_working_tree()
+	if code == 1 {
+		println('Working tree contains unstaged changes. Aborting...')
+		exit(1)
+	} else if code == 2 {
+		println('Index contains uncommited changes. Aborting...')
+		exit(1)
 	}
+}
+
+pub fn get_oneflow_config(config string) string {
+	result := os.execute('git config --get oneflow.{config}')
+	return result.output
+}
+
+pub fn set_oneflow_config(config string, value string) bool {
+	result := os.execute('git config oneflow.{config} "{value}"')
+	return result.exit_code == 0
 }
