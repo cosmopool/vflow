@@ -112,3 +112,31 @@ pub fn git_is_branch_merged_into(subject string, base string) bool {
 	all_merges := os.execute("git branch --no-color --contains $subject | sed 's/^[* ] //'").output
 	return base.contains(all_merges)
 }
+
+//
+// git_is_repo_init()
+//
+// Checks whether current dir is a valid git repository
+//
+pub fn git_is_valid_repo() bool {
+	exit_code := os.execute('git rev-parse --git-dir >/dev/null 2>&1').exit_code
+	return exit_code == 0
+}
+
+//
+// git_do(command string)
+//
+// Executes a git command
+//
+pub fn git_do(command string) os.Result {
+	result := os.execute('git {command}')
+	return result
+}
+
+pub fn require_clean_working_tree() {
+	if !is_clean_working_tree() {
+		println('Working tree contains unstaged changes. Or...')
+		println('Index contains uncommited changes.')
+		panic('Aborting.')
+	}
+}
