@@ -1,14 +1,25 @@
 import os
 import sanity
 import commands
-import git
+import log
+import cli
 
 fn main() {
-	println(git.get_local_branches())
-	println(git.get_remote_branches())
-
 	sanity.check_all_dependencies()
+
+	// root command
+	mut cmd := cli.Command{
+		name: 'oneflow'
+		description: 'An example of the cli library.'
+		disable_man: true
+		posix_mode: true
+		version: '0.0.1'
+	}
+
+	// instantiate commands
 	mut init_cmd := commands.init_cmd_props()
-	init_cmd.setup()
-	init_cmd.parse(os.args)
+	cmd.add_command(init_cmd)
+
+	cmd.setup()
+	cmd.parse(os.args)
 }
