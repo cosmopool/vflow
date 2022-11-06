@@ -84,10 +84,10 @@ pub fn compare_branches(first_branch string, second_branch string) int {
 	commit1 := os.execute('git ref-parse $first_branch').output
 	commit2 := os.execute('git ref-parse $second_branch').output
 
-	if commi1 != commit2 {
-		result_merge := os.execute('git merge-base $commit1 $commit2').exit_code
-		base = result_merge.output
-		merge_exit_code = result_merge.exit_code
+	if commit1 != commit2 {
+		result_merge := os.execute('git merge-base $commit1 $commit2')
+		base := result_merge.output
+		merge_exit_code := result_merge.exit_code
 
 		if merge_exit_code != 0 {
 			return 4
@@ -108,7 +108,7 @@ pub fn compare_branches(first_branch string, second_branch string) int {
 //
 // Checks whether branch $1 is succesfully merged into $2
 //
-pub fn git_is_branch_merged_into(subject string, base string) {
+pub fn git_is_branch_merged_into(subject string, base string) bool {
 	all_merges := os.execute("git branch --no-color --contains $subject | sed 's/^[* ] //'").output
 	return base.contains(all_merges)
 }
